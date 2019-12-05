@@ -50,7 +50,7 @@ export const ShoppingListsScreen = ({navigation}: Props) => {
                         renderRow={data => {
                             return (
                                 <ListItem
-                                    onPress={navigateToDetails(data)}
+                                    onPress={() => navigation.navigate('SingleShoppingListScreen', {data: data})}
                                 >
                                     <Text style={{marginLeft: 5}}>{data.name}</Text>
                                 </ListItem>

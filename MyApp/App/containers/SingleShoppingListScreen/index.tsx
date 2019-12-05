@@ -14,12 +14,9 @@ export const SingleShoppingListScreen = ({navigation}: Props) => {
 
     useEffect(() => {
         if ( navigation.state.params !== undefined) {
-            const id = navigation.state.params.listObject;
-            setListName(id.toString);
-            console.log(id);
-            console.log(navigation.state.params.listObject);
+            const data = navigation.getParam('data');
+            setListName(data.name);
         }
-        console.log('undef');
     }, [navigation.state.params]);
 
     return(
