@@ -7,12 +7,15 @@ import HomeScreen from "../HomeScreen";
 import AddToListScreen from "../AddToListScreen";
 import ShoppingListsScreen from "../ShoppingListsScreen";
 import SingleShoppingListScreen from "../SingleShoppingListScreen";
+import StoreScreen from "../StoreScreen";
 
 
 const HomeStack = createStackNavigator({HomeScreen});
 const AddToListStack = createStackNavigator({AddToListScreen});
 const ShoppingListsStack = createStackNavigator({ShoppingListsScreen});
 const SingleShoppingListStack = createStackNavigator({SingleShoppingListScreen});
+const StoreStack = createStackNavigator({StoreScreen});
+
 
 const DrawerContainer = createDrawerNavigator(
     {
@@ -24,6 +27,9 @@ const DrawerContainer = createDrawerNavigator(
         },
         'Twoje listy zakupów': {
             screen: ShoppingListsStack
+        },
+        'Storage': {
+            screen: StoreStack
         }
 
     },
@@ -37,7 +43,8 @@ const AppContainer = createAppContainer(
             AddToListStack,
             DrawerContainer,
             ShoppingListsStack,
-            SingleShoppingListStack
+            SingleShoppingListStack,
+            StoreStack
         },
         {
             initialRouteName: 'AddToListStack',
