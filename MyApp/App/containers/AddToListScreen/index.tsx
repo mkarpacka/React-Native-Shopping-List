@@ -55,7 +55,6 @@ export const AddToListScreen = ({navigation}: Props) => {
                     flex: 1,
                     padding: 20,
                 }}>
-                    {/*<TextInput style={styles.inputStyle} placeholder="Enter your todo task..." onChangeText={e => {}}> </TextInput>*/}
                     <TextInput
                         placeholder="Dodaj do listy..."
                         value={value}
