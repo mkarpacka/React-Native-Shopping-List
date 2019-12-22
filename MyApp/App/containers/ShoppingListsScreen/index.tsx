@@ -5,7 +5,6 @@ import {Body, Container, Content, Header, Icon, Left, List, ListItem, Title} fro
 import {DrawerActions} from "react-navigation-drawer";
 import AsyncStorage, {useAsyncStorage} from "@react-native-community/async-storage";
 
-
 type Props = {
     navigation: NavigationStackProp;
 };
@@ -19,15 +18,12 @@ export const ShoppingListsScreen = ({navigation}: Props) => {
 
     const [shoppingLists, setMyShoppingLists] = React.useState<ShoppingList[]>([]);
     const [value, setValue] = React.useState<string>("");
-    const [keys, setKeys] = React.useState([]);
-
 
     const handleSubmit = () => {
         //zabezpieczyc przed taka sama naza (klucz) - zapisywac bez spacji!
         if (value.trim()) {
             let itemToSave: ShoppingList = {name: value, completed: false};
             writeItemToStorage(itemToSave);
-            // console.log('handled');
         } else console.log("not handled");
         setValue("");
     };
@@ -36,7 +32,6 @@ export const ShoppingListsScreen = ({navigation}: Props) => {
         return new Promise(async (resolve, reject) => {
             try {
                 let keys = await AsyncStorage.getAllKeys();
-                // console.log(keys);
                 let items = await AsyncStorage.multiGet(keys);
                 resolve(items)
             } catch (error) {
@@ -46,8 +41,6 @@ export const ShoppingListsScreen = ({navigation}: Props) => {
     };
 
     const readItemFromStorage = async () => {
-
-
         try {
             var items: any = await DATABASE_getAllLists();
             var someItems: ShoppingList[] = items.map((result, i, store) => {
@@ -55,11 +48,8 @@ export const ShoppingListsScreen = ({navigation}: Props) => {
                 return JSON.parse(value);
             });
 
+            if (someItems) setMyShoppingLists(someItems);
 
-            // console.log("readed");
-            // console.log(someItems);
-            if(someItems) setMyShoppingLists(someItems);
-            // console.log(shoppingLists[1])
         } catch (error) {
             console.log(error);
         }
@@ -67,34 +57,51 @@ export const ShoppingListsScreen = ({navigation}: Props) => {
 
     const writeItemToStorage = async (shoppingListToSave: any) => {
         await AsyncStorage.setItem(shoppingListToSave.name, JSON.stringify(shoppingListToSave)).then(() => {
-            // console.log("It was saved successfully");
+            console.log("It was saved successfully");
         })
             .catch(() => {
-                // console.log("There was an error saving lists")
+                console.log("There was an error saving lists")
             });
 
-        // readItemFromStorage();
     };
 
+    const removeItemFromStorage = async (key: string) => {
+        try {
+            await AsyncStorage.removeItem(key);
+            console.log("removed ", key);
+            readItemFromStorage();
+            return true;
+        }
+        catch(exception) {
+            return false;
+        }
+    };
 
     useEffect(() => {
         readItemFromStorage();
         // console.log("rendered")
     }, []);
     useEffect(() => {
-        console.log('dupa', shoppingLists)
-    },[shoppingLists])
+        console.log('listy po effect', shoppingLists)
+    }, [shoppingLists])
 
-    let getAllKeys = async () => {
-        let returnedKeys: any = [];
-        try {
-            returnedKeys = await AsyncStorage.getAllKeys();
-            setKeys(returnedKeys);
-            // console.log("pobrano klucze zapisanych list :" + returnedKeys);
-        } catch (e) {
-            // console.log("nie można pobrać kluczy zapisanych list")
-        }
-        console.log(returnedKeys);
+
+    const toggleComplete = (elem: ShoppingList): void => {
+        const newShoppingList = [...shoppingLists];
+        let index = newShoppingList.indexOf(elem);
+        console.log(index)
+        newShoppingList[index].completed = !newShoppingList[index].completed;
+        setMyShoppingLists(newShoppingList);
+        writeItemToStorage(elem);
+    };
+
+    const removeItem = (elem: ShoppingList): void => {
+        const newShoppingList = [...shoppingLists];
+        let index = newShoppingList.indexOf(elem);
+        newShoppingList.splice(index, 1);
+        console.log(elem.name);
+        removeItemFromStorage(elem.name);
+        setMyShoppingLists(newShoppingList);
     };
 
     return (
@@ -137,7 +144,25 @@ export const ShoppingListsScreen = ({navigation}: Props) => {
                                 <ListItem
                                     onPress={() => navigation.navigate('SingleShoppingListScreen', {data: data})}
                                 >
-                                    <Text>{data.name}</Text>
+                                    <Text
+                                        style={[
+                                            styles.task,
+                                            {textDecorationLine: data.completed ? "line-through" : "none"}
+                                        ]}
+                                    >
+                                        {data.name}
+                                    </Text>
+                                    <Button
+                                        title={data.completed ? "Completed" : "Complete"}
+                                        onPress={() => toggleComplete(data)}
+                                    />
+                                    <Button
+                                        title="X"
+                                        onPress={() => {
+                                            removeItem(data);
+                                        }}
+                                        color="crimson"
+                                    />
                                 </ListItem>
                             );
                         }}
