@@ -16,6 +16,7 @@ interface ShoppingList {
 }
 
 export const ShoppingListsScreen = ({navigation}: Props) => {
+
     const [shoppingLists, setMyShoppingLists] = React.useState<ShoppingList[]>([]);
     const [value, setValue] = React.useState<string>("");
     const [keys, setKeys] = React.useState([]);
@@ -23,13 +24,10 @@ export const ShoppingListsScreen = ({navigation}: Props) => {
 
     const handleSubmit = () => {
         //zabezpieczyc przed taka sama naza (klucz) - zapisywac bez spacji!
-        console.log('handled');
         if (value.trim()) {
-            // setMyShoppingLists([...shoppingLists, {name: value, completed: false}]);
-            // console.log('handled shopping list' + shoppingLists.length);
-            // console.log('value: ' + value);
             let itemToSave: ShoppingList = {name: value, completed: false};
             writeItemToStorage(itemToSave);
+            // console.log('handled');
         } else console.log("not handled");
         setValue("");
     };
@@ -38,6 +36,7 @@ export const ShoppingListsScreen = ({navigation}: Props) => {
         return new Promise(async (resolve, reject) => {
             try {
                 let keys = await AsyncStorage.getAllKeys();
+                // console.log(keys);
                 let items = await AsyncStorage.multiGet(keys);
                 resolve(items)
             } catch (error) {
@@ -48,89 +47,52 @@ export const ShoppingListsScreen = ({navigation}: Props) => {
 
     const readItemFromStorage = async () => {
 
-        // const newList = [...shoppingLists];
-        // await AsyncStorage.getAllKeys((err, keys) => {
-        //     AsyncStorage.multiGet(keys, (err, stores) => {
-        //         stores.map((result, i, store) => {
-        //             let value = store[i][1];
-        //
-        //             console.log("after map" + value);
-        //
-        //
-        //             newList.push(value);
-        //
-        //         });
-        //     });
-        //     // console.log("full list: ")
-        //     // setMyShoppingLists(newList);
-        //     // console.log(newList);
-        // });
 
         try {
             var items: any = await DATABASE_getAllLists();
             var someItems: ShoppingList[] = items.map((result, i, store) => {
                 let value = store[i][1];
-                return value;
+                return JSON.parse(value);
             });
 
-            console.log("readed");
-            console.log(someItems);
+
+            // console.log("readed");
+            // console.log(someItems);
             if(someItems) setMyShoppingLists(someItems);
-            console.log(shoppingLists[1])
+            // console.log(shoppingLists[1])
         } catch (error) {
             console.log(error);
         }
-
-
-        // if (currentlyMerged.length > 0) {
-        //     console.log("READ currentlyMerged: ");
-        //     console.log(currentlyMerged[0][1]);
-        //
-        //     const tempShoppingList = [];
-        //     for (let i in currentlyMerged) {
-        //         tempShoppingList.push(currentlyMerged[i][1]);
-        //         // setMyShoppingLists([...shoppingLists, tempShoppingList[i]]);
-        //     }
-        //
-        //     console.log("ponizej odczytana lista:");
-        //     console.log(tempShoppingList);
-        //
-        // } else {
-        //     console.log("currentlymerged PUSTE");
-        // }
-        // if(tempShoppingList) setMyShoppingLists([...shoppingLists, tempShoppingList]);
     };
 
     const writeItemToStorage = async (shoppingListToSave: any) => {
         await AsyncStorage.setItem(shoppingListToSave.name, JSON.stringify(shoppingListToSave)).then(() => {
-            console.log("It was saved successfully");
-            // let newToDoList = [...shoppingLists];
-            // newToDoList.push(shoppingListToSave);
-            // console.log(newToDoList);
-            // setMyShoppingLists([...shoppingLists, shoppingListToSave]);
-            // console.log("SHOPPING LISTS new: " + [...shoppingLists, shoppingListToSave]);
+            // console.log("It was saved successfully");
         })
             .catch(() => {
-                console.log("There was an error saving lists")
+                // console.log("There was an error saving lists")
             });
 
-        readItemFromStorage();
+        // readItemFromStorage();
     };
 
 
     useEffect(() => {
         readItemFromStorage();
+        // console.log("rendered")
     }, []);
-
+    useEffect(() => {
+        console.log('dupa', shoppingLists)
+    },[shoppingLists])
 
     let getAllKeys = async () => {
         let returnedKeys: any = [];
         try {
             returnedKeys = await AsyncStorage.getAllKeys();
             setKeys(returnedKeys);
-            console.log("pobrano klucze zapisanych list :" + returnedKeys);
+            // console.log("pobrano klucze zapisanych list :" + returnedKeys);
         } catch (e) {
-            console.log("nie można pobrać kluczy zapisanych list")
+            // console.log("nie można pobrać kluczy zapisanych list")
         }
         console.log(returnedKeys);
     };
@@ -175,7 +137,7 @@ export const ShoppingListsScreen = ({navigation}: Props) => {
                                 <ListItem
                                     onPress={() => navigation.navigate('SingleShoppingListScreen', {data: data})}
                                 >
-                                    <Text>{data.completed}</Text>
+                                    <Text>{data.name}</Text>
                                 </ListItem>
                             );
                         }}
