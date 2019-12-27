@@ -32,7 +32,11 @@ export const ShoppingListsScreen = ({navigation}: Props) => {
         return new Promise(async (resolve, reject) => {
             try {
                 let keys = await AsyncStorage.getAllKeys();
-                let items = await AsyncStorage.multiGet(keys);
+                const val = 'shopping';
+                let filteredKeys = keys.filter(term => {
+                    return term.toLowerCase().indexOf(val.trim().toLowerCase()) > -1;
+                });
+                let items = await AsyncStorage.multiGet(filteredKeys);
                 resolve(items)
             } catch (error) {
                 reject(new Error('Error getting items from AsyncStorage: ' + error.message))
@@ -56,40 +60,33 @@ export const ShoppingListsScreen = ({navigation}: Props) => {
     };
 
     const writeItemToStorage = async (shoppingListToSave: any) => {
-        await AsyncStorage.setItem(shoppingListToSave.name, JSON.stringify(shoppingListToSave)).then(() => {
+        await AsyncStorage.setItem('shopping' + shoppingListToSave.name, JSON.stringify(shoppingListToSave)).then(() => {
             console.log("It was saved successfully");
+            readItemFromStorage();
         })
             .catch(() => {
                 console.log("There was an error saving lists")
             });
-
     };
 
     const removeItemFromStorage = async (key: string) => {
         try {
-            await AsyncStorage.removeItem(key);
+            await AsyncStorage.removeItem('shopping' + key);
             console.log("removed ", key);
             readItemFromStorage();
             return true;
-        }
-        catch(exception) {
+        } catch (exception) {
             return false;
         }
     };
 
     useEffect(() => {
         readItemFromStorage();
-        // console.log("rendered")
     }, []);
-    useEffect(() => {
-        console.log('listy po effect', shoppingLists)
-    }, [shoppingLists])
-
 
     const toggleComplete = (elem: ShoppingList): void => {
         const newShoppingList = [...shoppingLists];
         let index = newShoppingList.indexOf(elem);
-        console.log(index)
         newShoppingList[index].completed = !newShoppingList[index].completed;
         setMyShoppingLists(newShoppingList);
         writeItemToStorage(elem);
@@ -99,7 +96,6 @@ export const ShoppingListsScreen = ({navigation}: Props) => {
         const newShoppingList = [...shoppingLists];
         let index = newShoppingList.indexOf(elem);
         newShoppingList.splice(index, 1);
-        console.log(elem.name);
         removeItemFromStorage(elem.name);
         setMyShoppingLists(newShoppingList);
     };
