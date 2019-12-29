@@ -4,19 +4,13 @@ import {createAppContainer, createSwitchNavigator} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
 import {createDrawerNavigator} from 'react-navigation-drawer'
 import HomeScreen from "../HomeScreen";
-import AddToListScreen from "../AddToListScreen";
 import ShoppingListsScreen from "../ShoppingListsScreen";
 import SingleShoppingListScreen from "../SingleShoppingListScreen";
-import StoreScreen from "../StoreScreen";
-import FakerJsScreen from "../FakerJsScreen";
 import PdfScreen from "../PdfScreen";
 
 const HomeStack = createStackNavigator({HomeScreen});
-const AddToListStack = createStackNavigator({AddToListScreen});
 const ShoppingListsStack = createStackNavigator({ShoppingListsScreen});
 const SingleShoppingListStack = createStackNavigator({SingleShoppingListScreen});
-const StoreStack = createStackNavigator({StoreScreen});
-const FakerJsStack = createStackNavigator({FakerJsScreen});
 const PDFStack = createStackNavigator({PdfScreen});
 
 const DrawerContainer = createDrawerNavigator(
@@ -31,7 +25,7 @@ const DrawerContainer = createDrawerNavigator(
             screen: PDFStack
         },
         'Zdjęcia paragonów': {
-            screen: FakerJsStack
+            screen: PDFStack
         },
 
     },
@@ -42,11 +36,9 @@ const AppContainer = createAppContainer(
     createSwitchNavigator(
         {
             HomeStack,
-            AddToListStack,
             DrawerContainer,
             ShoppingListsStack,
             SingleShoppingListStack,
-            StoreStack
         },
         {
             initialRouteName: 'HomeStack',
