@@ -21,23 +21,17 @@ const PDFStack = createStackNavigator({PdfScreen});
 
 const DrawerContainer = createDrawerNavigator(
     {
-        'Home': {
+        'Start': {
             screen: HomeStack
-        },
-        'Dodaj do listy': {
-            screen: AddToListStack
         },
         'Twoje listy zakupów': {
             screen: ShoppingListsStack
         },
-        'Storage': {
-            screen: StoreStack
-        },
-        'Faker': {
-            screen: FakerJsStack
-        },
-        'PDF': {
+        'Wygeneruj PDF': {
             screen: PDFStack
+        },
+        'Zdjęcia paragonów': {
+            screen: FakerJsStack
         },
 
     },
@@ -55,7 +49,7 @@ const AppContainer = createAppContainer(
             StoreStack
         },
         {
-            initialRouteName: 'AddToListStack',
+            initialRouteName: 'HomeStack',
             // headerMode: 'screen'
         },
     ),

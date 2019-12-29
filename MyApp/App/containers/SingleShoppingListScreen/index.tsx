@@ -23,6 +23,7 @@ import React, {useEffect, useState} from "react";
 import AsyncStorage from "@react-native-community/async-storage";
 import {Checkbox} from 'react-native-material-ui';
 import {Dimensions} from "react-native";
+import * as faker from "faker";
 
 let width = Dimensions.get('window').width;
 
@@ -47,9 +48,9 @@ export const SingleShoppingListScreen = ({navigation}: Props) => {
     const [value, setValue] = React.useState<string>("");
     const [selectedVal, setSelectedVal] = useState("");
     const [selectedFilter, setSelectedFilter] = useState("");
-    const [finishedItemsCount, setFinishedItemsCount] = useState<number>(0);
     const [option, setOption] = useState("");
     const [searchText, setSearchText] = useState("");
+    const [fakeShoppingList, setFakeShoppingList] = useState<ItemsList[]>([]);
 
 
     async function loadContent() {
@@ -71,7 +72,6 @@ export const SingleShoppingListScreen = ({navigation}: Props) => {
     useEffect(() => {
         async function read() {
             await readItemFromStorage();
-
         }
 
         read();
@@ -87,6 +87,12 @@ export const SingleShoppingListScreen = ({navigation}: Props) => {
 
         console.log(selectedVal)
     }, [selectedVal]);
+
+    useEffect(() => {
+        filter();
+
+        console.log(selectedFilter)
+    }, [selectedFilter]);
 
     useEffect(() => {
         searchItem();
@@ -137,18 +143,13 @@ export const SingleShoppingListScreen = ({navigation}: Props) => {
     };
 
     const clicked = (checked: any, item: any) => {
-        // if (item.isChecked) {
-        //     let temp = finishedItemsCount + 1;
-        //     setFinishedItemsCount(temp);
-        // } else {
-        //     let temp = finishedItemsCount - 1;
-        //     setFinishedItemsCount(temp);
-        // }
-        // if (finishedItemsCount < 0) setFinishedItemsCount(0);
-        // console.log('ilosc zaznaczonych: ' + finishedItemsCount);
-        item.isChecked = checked;
-        console.log(checked, item)
+        const index = itemsList.findIndex(({name}) => name === item.name);
+        const copy = [...itemsList];
+        copy[index].isChecked = checked
+        setItemsList(copy)
+        writeItemToStorage(copy);
     }
+
 
     const sort = () => {
 
@@ -167,12 +168,14 @@ export const SingleShoppingListScreen = ({navigation}: Props) => {
     };
 
     const sortAscending = () => {
-        setItemsList(itemsList.sort((a, b) => a.name.localeCompare(b.name)));
+        const x = [...itemsList]
+        setItemsList(x.sort((a, b) => a.name.localeCompare(b.name)));
     };
     const sortDescending = () => {
-        const ascending = itemsList.sort((a, b) => a.name.localeCompare(b.name));
-        ascending.sort().reverse();
-        setItemsList(ascending.sort().reverse());
+        const x = [...itemsList]
+        const ascending = x.sort((a, b) => a.name.localeCompare(b.name));
+        // ascending.sort().reverse();
+        setItemsList(ascending.reverse());
     };
     const sortRandom = () => {
         shuffleArray(itemsList);
@@ -206,6 +209,48 @@ export const SingleShoppingListScreen = ({navigation}: Props) => {
         }
     };
 
+    const generateFakerJsData = () => {
+        const newFakeShoppingList = [...fakeShoppingList];
+        for (let i = 0; i < 50; i++) {
+            let productFakeName = faker.fake("{{commerce.product}}");
+            newFakeShoppingList.push({isChecked: false, name: productFakeName});
+        }
+        console.log(newFakeShoppingList);
+        setFakeShoppingList(newFakeShoppingList);
+        const temp = [...itemsList, ...newFakeShoppingList];
+        setItemsList(temp);
+        writeItemToStorage(temp);
+    };
+
+    const removeItem = (elem: ItemsList): void => {
+        const copyItemsList = [...itemsList];
+        let index = copyItemsList.indexOf(elem);
+        copyItemsList.splice(index, 1);
+        setItemsList(copyItemsList);
+        writeItemToStorage(copyItemsList);
+        readItemFromStorage();
+    };
+
+    const filter = () => {
+        if (selectedFilter == 'all') {
+            readItemFromStorage();
+        }
+        if (selectedFilter == 'completed') {
+            const x = [...itemsList];
+            const filtered = x.filter(({isChecked}) => isChecked);
+            setItemsList(filtered)
+            console.log(filtered)
+        }
+        if (selectedFilter == 'inprogress') {
+            const x = [...itemsList];
+            const filtered = x.filter(({isChecked}) => !isChecked);
+            setItemsList(filtered)
+            console.log(filtered)
+        }
+    };
+
+    const finishedCount = itemsList.filter(({isChecked}) => isChecked).length;
+
     return (
         <Container>
             <Header>
@@ -221,15 +266,15 @@ export const SingleShoppingListScreen = ({navigation}: Props) => {
             </Header>
             <Content
                 contentContainerStyle={{
-                    justifyContent: 'center',
                     flex: 1,
-                    padding: 20,
+                    paddingLeft: 20,
+                    paddingRight: 20,
                 }}>
 
                 <View style={{flexDirection: "row", justifyContent: 'center'}}>
-                    <Button light onPress={() => renderOption("add")}>
+                    {!singleList.completed && (<Button light onPress={() => renderOption("add")}>
                         <Icon name='ios-add'/>
-                    </Button>
+                    </Button>)}
                     <Button light onPress={() => renderOption("search")}>
                         <Icon name='ios-search'/>
                     </Button>
@@ -238,6 +283,9 @@ export const SingleShoppingListScreen = ({navigation}: Props) => {
                     </Button>
                     <Button light onPress={() => renderOption("sort")}>
                         <Icon name='ios-swap'/>
+                    </Button>
+                    <Button light onPress={() => renderOption("generate")}>
+                        <Icon name='ios-build'/>
                     </Button>
                 </View>
 
@@ -276,8 +324,9 @@ export const SingleShoppingListScreen = ({navigation}: Props) => {
                         onValueChange={selectedFilter =>
                             setSelectedFilter(selectedFilter)
                         }>
+                        <Picker.Item label="Wszystkie" value="all"/>
                         <Picker.Item label="Zakończone" value="completed"/>
-                        <Picker.Item label="Niezakończone" value="notcompleted"/>
+                        <Picker.Item label="Niezakończone" value="inprogress"/>
                     </Picker>
                 )}
 
@@ -293,32 +342,45 @@ export const SingleShoppingListScreen = ({navigation}: Props) => {
                                         setValue(e);
                                     }}
                                 />
-                                <Button
-                                    onPress={handleSubmit}
+                                <Button small
+                                        onPress={handleSubmit}
                                 >
                                     <Text>Dodaj</Text>
                                 </Button>
                             </Item>
                         </Form>
-
                     </View>
 
                 )}
+                {itemsList.length > 0 && (<Text>Twoje zakupy {finishedCount}/{itemsList.length}</Text>)}
                 {itemsList.length === 0 && <Text>Nie dodano produktów</Text>}
                 {itemsList.length > 0 && (
                     <List
                         dataArray={itemsList}
                         renderRow={data => {
                             return (
-                                <ListItem>
+                                <ListItem key={data.name}>
                                     <Checkbox label={data.name} checked={data.isChecked} value="temp"
                                               onCheck={checked => {
                                                   clicked(checked, data);
                                               }}/>
+                                    <Button small danger
+                                            onPress={() => {
+                                                removeItem(data);
+                                            }}
+                                            color="crimson"
+                                    >
+                                        <Text>X</Text>
+                                    </Button>
                                 </ListItem>
                             );
                         }}
                     />
+                )}
+                {option === "generate" && (
+                    <Button small light style={{justifyContent: 'center'}} onPress={() => generateFakerJsData()}>
+                        <Text>Dodaj wygenerowane dane</Text>
+                    </Button>
                 )}
             </Content>
         </Container>

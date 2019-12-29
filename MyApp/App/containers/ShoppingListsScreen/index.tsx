@@ -1,7 +1,21 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {NavigationStackProp} from "react-navigation-stack";
-import {Button, View, Text, StyleSheet, TextInput} from "react-native";
-import {Body, Container, Content, Header, Icon, Left, List, ListItem, Title} from "native-base";
+import {View, StyleSheet} from "react-native";
+import {
+    Body,
+    Container,
+    Content,
+    Header,
+    Icon,
+    Left,
+    List,
+    ListItem,
+    Title,
+    Button,
+    Text,
+    Item,
+    Input, Form, Picker
+} from "native-base";
 import {DrawerActions} from "react-navigation-drawer";
 import AsyncStorage, {useAsyncStorage} from "@react-native-community/async-storage";
 
@@ -18,14 +32,45 @@ export const ShoppingListsScreen = ({navigation}: Props) => {
 
     const [shoppingLists, setMyShoppingLists] = React.useState<ShoppingList[]>([]);
     const [value, setValue] = React.useState<string>("");
+    const [checkIfExists, setCheckIfExists] = useState(false);
+    const [option, setOption] = useState("");
+    const [selectedVal, setSelectedVal] = useState("");
+    const [selectedFilter, setSelectedFilter] = useState("");
+    const [searchText, setSearchText] = useState("");
+
+    useEffect(() => {
+        sort();
+
+        console.log(selectedVal)
+    }, [selectedVal]);
+
+    useEffect(() => {
+        filter();
+
+        console.log(selectedFilter)
+    }, [selectedFilter]);
+
+    useEffect(() => {
+        searchItem();
+
+        console.log(searchText)
+    }, [searchText]);
+
 
     const handleSubmit = () => {
-        //zabezpieczyc przed taka sama naza (klucz) - zapisywac bez spacji!
-        if (value.trim()) {
-            let itemToSave: ShoppingList = {name: value, completed: false};
-            writeItemToStorage(itemToSave);
-        } else console.log("not handled");
-        setValue("");
+        let temp = shoppingLists.map(a => a.name).indexOf(value) > -1
+        setCheckIfExists(temp);
+        if (!temp) {
+            if (value.trim()) {
+                let itemToSave: ShoppingList = {name: value, completed: false};
+                writeItemToStorage(itemToSave);
+            } else console.log("not handled");
+            setValue("");
+        } else {
+            console.log("istnieje :(");
+        }
+
+        console.log(temp);
     };
 
     const DATABASE_getAllLists = () => {
@@ -100,12 +145,88 @@ export const ShoppingListsScreen = ({navigation}: Props) => {
         setMyShoppingLists(newShoppingList);
     };
 
+    const renderOption = (name: string) => {
+        console.log(name);
+        setOption(name);
+    };
+
+    const sort = () => {
+
+        if (selectedVal == 'def') {
+            readItemFromStorage();
+        }
+        if (selectedVal == 'high') {
+            sortAscending();
+        }
+        if (selectedVal == 'low') {
+            sortDescending();
+        }
+        if (selectedVal == 'rand') {
+            sortRandom();
+        }
+    };
+
+    const sortAscending = () => {
+        const x = [...shoppingLists]
+        setMyShoppingLists(x.sort((a, b) => a.name.localeCompare(b.name)));
+    };
+    const sortDescending = () => {
+        const x = [...shoppingLists]
+        const ascending =  x.sort((a, b) => a.name.localeCompare(b.name));
+        // ascending.sort().reverse();
+        setMyShoppingLists(ascending.reverse());
+    };
+    const sortRandom = () => {
+        shuffleArray(shoppingLists);
+    };
+
+
+    function shuffleArray(array) {
+        let shuffled = array
+            .map((a) => ({sort: Math.random(), value: a}))
+            .sort((a, b) => a.sort - b.sort)
+            .map((a) => a.value)
+        console.log(shuffled);
+        setMyShoppingLists(shuffled);
+    }
+
+    const searchItem = () => {
+        let val = searchText;
+        if (val && val.trim() !== '') {
+            const copyItemsList = shoppingLists.filter(term => {
+                return term.name.toLowerCase().indexOf(val.trim().toLowerCase()) > -1;
+            });
+            setMyShoppingLists(copyItemsList);
+        } else {
+            readItemFromStorage();
+        }
+    };
+
+    const filter = () =>{
+        if(selectedFilter == 'all'){
+            readItemFromStorage();
+        }
+        if(selectedFilter == 'completed'){
+            const x = [...shoppingLists];
+            const filtered = x.filter(({completed}) => completed);
+            setMyShoppingLists(filtered)
+            console.log(filtered)
+        }
+        if(selectedFilter == 'inprogress'){
+            const x = [...shoppingLists];
+            const filtered = x.filter(({completed}) => !completed);
+            setMyShoppingLists(filtered)
+            console.log(filtered)
+        }
+    };
+
     return (
         <Container>
             <Header>
                 <Left>
                     <Button
-                        onPress={() => navigation.dispatch(DrawerActions.openDrawer())} title={'menu'}>
+                        onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
+                        <Icon name='menu'/>
                     </Button>
                 </Left>
                 <Body>
@@ -118,18 +239,81 @@ export const ShoppingListsScreen = ({navigation}: Props) => {
                     flex: 1,
                     padding: 20,
                 }}>
-                <TextInput
-                    placeholder="Dodaj nową listę zakupów"
-                    value={value}
-                    onChangeText={e => {
-                        setValue(e);
-                    }}
-                    style={styles.inputStyle}
-                />
-                <Button
-                    title="Dodaj"
-                    onPress={handleSubmit}
-                />
+
+                <View style={{flexDirection: "row", justifyContent: 'center'}}>
+                    <Button light onPress={() => renderOption("add")}>
+                        <Icon name='ios-add'/>
+                    </Button>
+                    <Button light onPress={() => renderOption("search")}>
+                        <Icon name='ios-search'/>
+                    </Button>
+                    <Button light onPress={() => renderOption("filter")}>
+                        <Icon name='ios-funnel'/>
+                    </Button>
+                    <Button light onPress={() => renderOption("sort")}>
+                        <Icon name='ios-swap'/>
+                    </Button>
+                </View>
+
+                {option === "add" && (
+                    <Form>
+                        <Item>
+                            <Input
+                                placeholder="Dodaj nową listę"
+                                value={value}
+                                onChangeText={e => {
+                                    setValue(e);
+                                }}
+                            />
+                            <Button small
+                                    onPress={handleSubmit}
+                            >
+                                <Text>Dodaj</Text>
+                            </Button>
+                        </Item>
+                    </Form>
+                )}
+                {checkIfExists && <Text style={{color: 'red'}}>Lista o podanej nazwie istnieje</Text>}
+
+
+                {option === "sort" && (
+                    <Picker
+                        selectedValue={selectedVal}
+                        onValueChange={selectedVal =>
+                            setSelectedVal(selectedVal)
+                        }>
+                        <Picker.Item label="Domyślnie" value="def"/>
+                        <Picker.Item label="Rosnąco" value="high"/>
+                        <Picker.Item label="Malejąco" value="low"/>
+                        <Picker.Item label="Losowo" value="rand"/>
+                    </Picker>
+                )}
+
+                {option === "filter" && (
+                    <Picker
+                        selectedValue={selectedFilter}
+                        onValueChange={selectedFilter =>
+                            setSelectedFilter(selectedFilter)
+                        }>
+                        <Picker.Item label="Wszystkie" value="all"/>
+                        <Picker.Item label="Zakończone" value="completed"/>
+                        <Picker.Item label="Niezakończone" value="inprogress"/>
+                    </Picker>
+                )}
+
+                {option === "search" && (
+                    <Header searchBar rounded>
+                        <Item>
+                            <Icon name="ios-search"/>
+                            <Input placeholder="Szukaj" value={searchText} onChangeText={e => {
+                                setSearchText(e);
+                            }}/>
+                        </Item>
+                        <Button transparent>
+                            <Text>Search</Text>
+                        </Button>
+                    </Header>
+                )}
 
                 {shoppingLists.length === 0 && <Text>Nie masz jeszcze listy zakupów</Text>}
                 {shoppingLists.length > 0 && (
@@ -148,17 +332,18 @@ export const ShoppingListsScreen = ({navigation}: Props) => {
                                     >
                                         {data.name}
                                     </Text>
-                                    <Button
-                                        title={data.completed ? "Completed" : "Complete"}
-                                        onPress={() => toggleComplete(data)}
-                                    />
-                                    <Button
-                                        title="X"
-                                        onPress={() => {
-                                            removeItem(data);
-                                        }}
-                                        color="crimson"
-                                    />
+                                    <Button small
+                                            onPress={() => toggleComplete(data)}>
+                                        <Icon name={data.completed ? "ios-hammer" : "ios-checkmark-circle-outline"}/>
+                                    </Button>
+                                    <Button small danger
+                                            onPress={() => {
+                                                removeItem(data);
+                                            }}
+                                            color="crimson"
+                                    >
+                                        <Text>X</Text>
+                                    </Button>
                                 </ListItem>
                             );
                         }}
