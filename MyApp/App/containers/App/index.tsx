@@ -7,11 +7,13 @@ import HomeScreen from "../HomeScreen";
 import ShoppingListsScreen from "../ShoppingListsScreen";
 import SingleShoppingListScreen from "../SingleShoppingListScreen";
 import PdfScreen from "../PdfScreen";
+import ImageScreen from "../ImageScreen";
 
 const HomeStack = createStackNavigator({HomeScreen});
 const ShoppingListsStack = createStackNavigator({ShoppingListsScreen});
 const SingleShoppingListStack = createStackNavigator({SingleShoppingListScreen});
 const PDFStack = createStackNavigator({PdfScreen});
+const ImageStack = createStackNavigator({ImageScreen});
 
 const DrawerContainer = createDrawerNavigator(
     {
@@ -25,7 +27,7 @@ const DrawerContainer = createDrawerNavigator(
             screen: PDFStack
         },
         'Zdjęcia paragonów': {
-            screen: PDFStack
+            screen: ImageStack
         },
 
     },
@@ -39,6 +41,7 @@ const AppContainer = createAppContainer(
             DrawerContainer,
             ShoppingListsStack,
             SingleShoppingListStack,
+            ImageStack
         },
         {
             initialRouteName: 'HomeStack',
