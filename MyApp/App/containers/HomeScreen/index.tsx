@@ -58,15 +58,21 @@ const HomeScreen = ({navigation}: Props) => {
                     </CardItem>
                 </Card>
                 <View style={{padding: 10}}>
-                    <Button light>
+                    <Button light onPress={() => navigation.navigate('ShoppingListScreen')}>
                         <Icon name="ios-basket"/>
                         <Text>Dodaj listę zakupów</Text>
                     </Button>
                 </View>
                 <View style={{padding: 10}}>
-                    <Button light>
+                    <Button light onPress={() => navigation.navigate('PdfScreen')}>
                         <Icon name="ios-document"/>
                         <Text>Wygeneruj PDF</Text>
+                    </Button>
+                </View>
+                <View style={{padding: 10}}>
+                    <Button light onPress={() => navigation.navigate('ManageImageScreen')}>
+                        <Icon name="ios-camera"/>
+                        <Text>Zdjęcia paragonów</Text>
                     </Button>
                 </View>
 
