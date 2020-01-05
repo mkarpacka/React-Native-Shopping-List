@@ -2,8 +2,9 @@ import React, {PureComponent, useEffect, useState} from 'react';
 import {AppRegistry, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {RNCamera} from 'react-native-camera';
 import {NavigationStackProp} from "react-navigation-stack";
-import {Button, Icon} from "native-base";
+import {Body, Button, Header, Icon, Left, Title} from "native-base";
 import AsyncStorage from "@react-native-community/async-storage";
+import {DrawerActions} from "react-navigation-drawer";
 
 const PendingView = () => (
     <View
@@ -23,7 +24,7 @@ type Props = {
 };
 
 const ImageScreen = ({navigation}: Props) => {
-    const result : string[] = [];
+    const result: string[] = [];
     const [filenameList, setFilenameList] = useState(result);
 
     useEffect(() => {
@@ -74,6 +75,7 @@ const ImageScreen = ({navigation}: Props) => {
                 console.log('JPG WRITTEN!');
 
                 writeItemToStorage(copyFilenameList);
+                navigation.navigate('ManageImageScreen');
             })
             .catch((err) => {
                 console.log(err.message);
@@ -92,6 +94,15 @@ const ImageScreen = ({navigation}: Props) => {
 
 
     return (
+        <>
+        <Header>
+            <Left>
+                <Button
+                    onPress={() => navigation.navigate('ManageImageScreen')}>
+                    <Icon name='ios-arrow-dropleft'/>
+                </Button>
+            </Left>
+        </Header>
         <View style={styles.container}>
             <RNCamera
                 style={styles.preview}
@@ -108,10 +119,12 @@ const ImageScreen = ({navigation}: Props) => {
                     if (status !== 'READY') return <PendingView/>;
                     return (
                         <>
-                            <View style={{flex: 0}}>
-                                <Button
-                                    onPress={() => navigation.navigate('ManageImageScreen')}><Text>Back</Text></Button>
-                            </View>
+                            {/*<View style={{flex: 0}}>*/}
+                            {/*    <Button*/}
+                            {/*        onPress={() => navigation.navigate('ManageImageScreen')}>*/}
+                            {/*        <Icon name='ios-arrow-dropleft'/>*/}
+                            {/*    </Button>*/}
+                            {/*</View>*/}
                             <View style={{flex: 0, flexDirection: 'row', justifyContent: 'center'}}>
                                 <TouchableOpacity onPress={() => takePicture(camera)} style={styles.capture}>
                                     <Icon name='ios-camera'/>
@@ -123,6 +136,7 @@ const ImageScreen = ({navigation}: Props) => {
                 }}
             </RNCamera>
         </View>
+            </>
     );
 };
 
