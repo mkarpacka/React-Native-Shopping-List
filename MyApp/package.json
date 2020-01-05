@@ -14,6 +14,7 @@
     "@types/faker": "^4.1.8",
     "faker": "^4.1.0",
     "native-base": "^2.13.8",
+    "pdfmake": "^0.1.63",
     "react": "16.12.0",
     "react-native": "0.61.4",
     "react-native-camera": "^3.15.0",
@@ -21,12 +22,14 @@
     "react-native-gesture-handler": "^1.5.1",
     "react-native-html-to-pdf": "^0.8.0",
     "react-native-material-ui": "^1.30.1",
+    "react-native-pdf": "^6.0.1",
     "react-native-reanimated": "^1.4.0",
     "react-native-vector-icons": "^6.6.0",
     "react-native-web": "^0.11.7",
     "react-navigation": "^4.0.10",
     "react-navigation-drawer": "^2.3.3",
-    "react-navigation-stack": "^1.10.3"
+    "react-navigation-stack": "^1.10.3",
+    "rn-fetch-blob": "^0.12.0"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",
@@ -41,6 +44,11 @@
     "metro-react-native-babel-preset": "^0.57.0",
     "react-test-renderer": "16.12.0",
     "typescript": "^3.6.3"
+  },
+  "rnpm": {
+    "assets": [
+      "./assets/fonts"
+    ]
   },
   "jest": {
     "preset": "react-native",
