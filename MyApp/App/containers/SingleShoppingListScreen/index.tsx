@@ -22,10 +22,8 @@ import {DrawerActions} from "react-navigation-drawer";
 import React, {useEffect, useState} from "react";
 import AsyncStorage from "@react-native-community/async-storage";
 import {Checkbox} from 'react-native-material-ui';
-import {Dimensions} from "react-native";
 import * as faker from "faker";
 
-let width = Dimensions.get('window').width;
 
 type Props = {
     navigation: NavigationStackProp;
@@ -261,8 +259,15 @@ export const SingleShoppingListScreen = ({navigation}: Props) => {
                     </Button>
                 </Left>
                 <Body>
-                    <Title>{singleList.name}</Title>
+                    <Title style={{paddingLeft: 20}} >{singleList.name}</Title>
                 </Body>
+                <Right>
+                    <Button
+                        onPress={() => navigation.navigate('EditShoppingListScreen', {data: singleList})}
+                    >
+                        <Icon name='settings'/>
+                    </Button>
+                </Right>
             </Header>
             <Content
                 contentContainerStyle={{

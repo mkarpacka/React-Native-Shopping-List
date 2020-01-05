@@ -2,16 +2,12 @@ import {NavigationStackProp} from "react-navigation-stack";
 import React, {useEffect, useState} from "react";
 import Pdf from 'react-native-pdf';
 import {Dimensions, PermissionsAndroid, StyleSheet} from "react-native";
+import {Body, Button, Text, Container, Header, Icon, Left, Title} from "native-base";
+import {DrawerActions} from "react-navigation-drawer";
 
 type Props = {
     navigation: NavigationStackProp;
 };
-import {
-    Text,
-
-} from 'react-native';
-import {Body, Button, Container, Header, Icon, Left, Title} from "native-base";
-import {DrawerActions} from "react-navigation-drawer";
 
 export const OpenPdfScreen = ({navigation}: Props) => {
 
@@ -71,7 +67,7 @@ export const OpenPdfScreen = ({navigation}: Props) => {
         </>
     )
 
-}
+};
 
 OpenPdfScreen.navigationOptions = {
     header: null,

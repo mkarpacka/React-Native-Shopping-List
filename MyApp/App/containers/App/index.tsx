@@ -10,6 +10,7 @@ import PdfScreen from "../PdfScreen";
 import ImageScreen from "../ImageScreen";
 import ManageImageScreen from "../ManageImagesScreen";
 import OpenPdfScreen from "../OpenPdfScreen";
+import EditShoppingListScreen from "../EditShoppingListScreen";
 
 const HomeStack = createStackNavigator({HomeScreen});
 const ShoppingListsStack = createStackNavigator({ShoppingListsScreen});
@@ -18,6 +19,8 @@ const PDFStack = createStackNavigator({PdfScreen});
 const ImageStack = createStackNavigator({ImageScreen});
 const ManageImagesStack = createStackNavigator({ManageImageScreen});
 const OpenPdfStack = createStackNavigator({OpenPdfScreen});
+const EditShoppingListStack = createStackNavigator({EditShoppingListScreen});
+
 
 const DrawerContainer = createDrawerNavigator(
     {
@@ -47,7 +50,8 @@ const AppContainer = createAppContainer(
             SingleShoppingListStack,
             ImageStack,
             ManageImagesStack,
-            OpenPdfStack
+            OpenPdfStack,
+            EditShoppingListStack
         },
         {
             initialRouteName: 'HomeStack',
